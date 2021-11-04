@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeWindowMod Name="DatumShift">
+  <Description>
+    <desc cnt="0" value="Adds NGVD29 elevations" />
+  </Description>
+  <InputType name="Flow" parameter="Flow" />
+  <ThresholdModifier prePeak="0.0" postPeak="0.0" fromPeak="true" isPercent="false" />
+  <RelativeWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+  </RelativeWindowModifier>
+  <MaximumWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+  </MaximumWindowModifier>
+  <Scripting>
+    <UseScript>true</UseScript>
+    <ScriptFile>timewindowmod/scripts/DatumShift.py</ScriptFile>
+  </Scripting>
+  <DataLocations>
+    <DataLocation Name="input" Class="hec2.model.DataLocation" DssPath="//Salem/Flow//1DAY/C:000001|PA:FRA_50_TWM:ResSim-F1MO1_F/" ComputeType="Computed" Model="ResSim-F1NAFC_F" Parameter="Flow" PrevModelIndex="0">
+      <ModelAlternative Name="DatumShift" />
+      <DownStreamLocation>
+        <DataLocation Name="Salem" Class="hec2.model.DataLocation" DssPath="//Salem/Flow//1DAY/C:000000|altName:apName:ResSim-F1NAFC_F/" ComputeType="Computed" Parameter="Flow" PrevModelIndex="0">
+          <ModelAlternative Name="F1NAFC_F" Program="ResSim" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+</TimeWindowMod>
+

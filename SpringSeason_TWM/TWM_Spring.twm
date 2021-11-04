@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeWindowMod Name="TWM_Spring">
+  <Description />
+  <InputType name="Flow" parameter="Flow" />
+  <ThresholdModifier prePeak="0.0" postPeak="0.0" fromPeak="true" isPercent="false" />
+  <RelativeWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+  </RelativeWindowModifier>
+  <MaximumWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+  </MaximumWindowModifier>
+  <Scripting>
+    <UseScript>true</UseScript>
+    <ScriptFile>timewindowmod/scripts/TWM_Spring.py</ScriptFile>
+  </Scripting>
+  <DataLocations>
+    <DataLocation Name="input" Class="hec2.model.DataLocation" DssPath="//The Dalles_OUT/Flow//1DAY/C:000004|PMFLoc_B:FRA_wFIA:ResSim-F1PMFL_F/" ComputeType="Computed" Model="Hydrologic Sampling-CRT_HS" Parameter="Flow" PrevModelIndex="0">
+      <ModelAlternative Name="TWM_Spring" Program="TimeWindowModifier" />
+      <DownStreamLocation>
+        <DataLocation Name="The Dalles_OUT" Class="hec2.model.DataLocation" DssPath="/Hydrograph/The Dalles_OUT/FLOW//1DAY/C:000000|altName:apName:HydroSampl-CRT_HS/" ComputeType="Computed" Parameter="Flow" PrevModelIndex="0">
+          <ModelAlternative Name="CRT_HS" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+</TimeWindowMod>
+

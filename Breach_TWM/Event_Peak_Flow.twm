@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TimeWindowMod Name="Event_Peak_Flow">
+  <Description />
+  <InputType name="Flow" parameter="Flow" />
+  <ThresholdModifier prePeak="50.0" postPeak="25.0" fromPeak="true" isPercent="true" />
+  <RelativeWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="0" hours="0" minutes="0" seconds="0" />
+  </RelativeWindowModifier>
+  <MaximumWindowModifier Class="hec2.plugin.timewindow.modifier.RelativeWindowModifier">
+    <Start Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="-2" hours="0" minutes="0" seconds="0" />
+    <End Class="hec2.plugin.timewindow.filter.RelativeTimeFilter" days="2" hours="21" minutes="0" seconds="0" />
+  </MaximumWindowModifier>
+  <Scripting>
+    <UseScript>true</UseScript>
+    <ScriptFile>timewindowmod/scripts/Event_Peak_Flow.py</ScriptFile>
+  </Scripting>
+  <DataLocations>
+    <DataLocation Name="input" Class="hec2.model.DataLocation" DssPath="//Trinity River at Dallas/Flow//3HOUR/C:000027|Existing C:Validation:ResSim-FC_Ops/" ComputeType="Computed" Model="ResSim-FC_Ops" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Event_Peak_Flow" />
+      <DownStreamLocation>
+        <DataLocation Name="Trinity River at Dallas" Class="hec2.model.DataLocation" DssPath="//Trinity River at Dallas/Flow//3HOUR/C:000000|altName:apName:ResSim-FC_Ops/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="FC_Ops" Program="ResSim" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+</TimeWindowMod>
+

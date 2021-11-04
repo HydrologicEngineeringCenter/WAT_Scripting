@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptingAlt Name="SWEGainLossFrequency">
+  <Description>
+    <desc cnt="0" value="Calculates the change in SWE over the simulation period" />
+  </Description>
+  <ScriptFile>scripts/SWEGainLossFrequency.py</ScriptFile>
+  <TimeStep>1DAY</TimeStep>
+  <OutputVariables>
+    <OutputVariable Plugin="" Name="RirieLocalDeltaSWEStorm" Description="" Value="0.0" ParamId="-1" Parameter="SWE" Units="in" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>OTHER</Statistic>
+    </OutputVariable>
+    <OutputVariable Plugin="" Name="RirieUpstreamDeltaSWEStorm" Description="" Value="0.0" ParamId="-1" Parameter="SWE" Units="in" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>OTHER</Statistic>
+    </OutputVariable>
+    <OutputVariable Plugin="" Name="RirieLocalDeltaSWEAll" Description="" Value="0.0" ParamId="-1" Parameter="SWE" Units="in" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>OTHER</Statistic>
+    </OutputVariable>
+    <OutputVariable Plugin="" Name="RirieUpstreamDeltaSWEAll" Description="" Value="0.0" ParamId="-1" Parameter="SWE" Units="in" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>OTHER</Statistic>
+    </OutputVariable>
+  </OutputVariables>
+</ScriptingAlt>
+
