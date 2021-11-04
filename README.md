@@ -27,4 +27,3 @@ This script computes a fixed time window for the April 1st through July 31st sea
 
 ### Event Peak / Breach
 This script computes a timewindow based on the combination of a peak at a downstream location in the HEC-ResSim model and a state variable that indicates if any reserviors were modeled as breached due to a failure.  This was used to generate a combined time window for HEC-RAS that reduces the overall compute time to only include the combination of those two events.  Contact Evan Heisman (NWW) for the corresponding HEC-ResSim state variables.
-

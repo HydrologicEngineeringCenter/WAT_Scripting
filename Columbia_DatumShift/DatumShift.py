@@ -1,8 +1,3 @@
-# name=DatumShift
-# displayinmenu=true
-# displaytouser=true
-# displayinselector=true
-#Datum Shift any DSS file
 #Opens a dss file and then shifts the data if it's not already in NGVD29
 # KAW, 16 May 2018
 # Time window modifications by Heather Baxter
