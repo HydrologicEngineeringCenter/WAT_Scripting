@@ -12,7 +12,7 @@ A script developed to pre-process data in a HEC-WAT Stochastic Data Importer com
  This script was developed by Evan Heisman (Walla Walla District) in support of the RMJOC-II Climate Change study.  Required input files are not provided.
 
 ### Ririe/Willow Creek Snow Accumulation
-This script computes additional output variables from the snowmelt portion of the HEC-HMS model to help answer questions about snow accumulation versus snowmelt during rain-on-snow events.  It uses a 
+This script computes additional output variables from the snowmelt portion of the HEC-HMS model to help answer questions about snow accumulation versus snowmelt during rain-on-snow events.
 
 The script was written by Eric Gabel (NWW) in support of the Ririe Dam Winter Inflow Volume Frequency study.
 
