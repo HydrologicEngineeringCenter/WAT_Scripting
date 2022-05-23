@@ -1,17 +1,49 @@
 """
 Example Script for writing a timeseries CSV and launching an external R script via a system call.  Could be adapted to many other models.
+
+R configuration passed in via json file at scriptConfigFilename
 """
 
 import os
 import json
 from csv import DictWriter
+import subprocess
 from hec.script import Constants
 from hec.heclib.util import HecTime
 from hec.hecmath import TimeSeriesMath
 
-def callR(scriptFile, args=[]):
-	args = " " + " ".join(args)
-	os.system(RScriptExe + " " + scriptFile + args)
+
+scriptConfigFilename = "synForecasts/forecastConfig.json"
+
+def callR(scriptFile, opts, args=[], relativeScript=True, relativeR=False, shell=False):
+	watershedDir = opts.getRunDirectory().split("runs")[0]
+
+	# load config file to find R
+	with open(os.path.join(watershedDir, scriptConfigFilename), 'r') as configFile:
+		scriptConfig = json.load(configFile)
+	RScriptExe = scriptConfig["r_config"]["RScriptExe"]
+	# RScript.exe gets used because the --vanilla option allows us to have a clean environment
+
+	# if script file isn't provided, load the one from the config file
+	if scriptFile is None:
+		scriptFile = scriptConfig["r_config"]["RScriptFile"]
+
+	if relativeR: # use R in the watershed
+		RScriptExe = os.path.join(watershedDir, "R_install", RScriptExe)	
+	if relativeScript:  # use scripts in the watershed
+		scriptFile = os.path.join(watershedDir, scriptFile)
+	# assemble command
+	cmdLine = []
+	cmdLine += [RScriptExe, "--vanilla", stringWrap(scriptFile)] + args
+	# I need to clean this up, I cannot make it launch a separate shell to monitor the process
+	# this appears to not work with spaces in the arguments
+	if shell: cmdLine = ["start", "cmd", "/k ^\n", " ".join(cmdLine)] #+ cmdLine
+	# quotations around the program being called can make a big difference here.
+	subprocess.call(" ".join(cmdLine), shell=shell) # This works if shell=False
+	# TODO: use Popen class to facilitate communication back to WAT.
+	#p = subprocess.Popen(cmdLine, shell=True) 
+	#p.wait()
+	return " ".join(cmdLine)
 
 def getOutputDir(opts):
 	d = os.path.dirname(opts.getRunDirectory())
@@ -19,6 +51,13 @@ def getOutputDir(opts):
 	if not os.path.exists(d):
 		os.mkdir(d)
 	return d
+
+def stringWrap(s, force=False):
+	#quotes = ["'", "\"",]
+	#if not force and (s[0] in quotes) and (s[-1] in quotes):
+	#	return s
+	#else:
+	return "\"%s\"" % s
 
 def writeScriptConfig(alt, opts):
 	## Writes out a configuration file for R script to reference
@@ -33,12 +72,12 @@ def writeScriptConfig(alt, opts):
 
 	## Save realization and event seeds
 	if opts.isFrmCompute():
-		seedDict = dict()
-    #  technically these aren't seeds as the dictionary name implies
-		seedDict["Event Random"] = opts.getEventRandom()
-		seedDict["Realization Random"] = opts.getRealizationRandom()
-		seedDict["Lifecycle Random"] = opts.getLifeCycleRandom()
-		config["Seeds"] = seedDict
+		# not technically seeds, but these can be used to generate a seed for the R script
+		randomDict = dict()
+		randomDict["Event Random"] = opts.getEventRandom()
+		randomDict["Realization Random"] = opts.getRealizationRandom()
+		randomDict["Lifecycle Random"] = opts.getLifeCycleRandom()
+		config["Randoms"] = randomDict
 		indexDict = dict()
 		indexDict["Event Number"] = opts.getCurrentEventNumber()
 		indexDict["Lifecycle Number"] = opts.getCurrentLifecycleNumber()
@@ -48,6 +87,8 @@ def writeScriptConfig(alt, opts):
 	# get DSS output data:
 	outputDict = dict()
 	outputDict["Run Directory"] = opts.getRunDirectory()
+	watershedDir = opts.getRunDirectory().split("runs")[0]
+	outputDict["Watershed Directory"] = watershedDir
 	outputDict["Simulation Name"] = opts.getSimulationName()
 	outputDict["DSS File"] = opts.getDssFilename()
 	outputDict["F Part"] = opts.getFpart()
@@ -62,8 +103,8 @@ def writeScriptConfig(alt, opts):
 		locDict["param"] = loc.getParameter()
 		#locDict["type"] = loc.getType()
 		#locDict["dssPath"] = loc.getDssPath()
-		alt.addComputeWarningMessage(loc.getName())
-		alt.addComputeMessage(loc.getParameter())
+		#alt.addComputeWarningMessage(loc.getName())
+		#alt.addComputeMessage(loc.getParameter())
 		config["locations"].append(locDict)
 
 	# write to file
@@ -72,7 +113,7 @@ def writeScriptConfig(alt, opts):
 	with open(configFilename, 'w') as out:
 		out.write(json.dumps(config))
 	
-	return configFilename
+	return stringWrap(configFilename)
 
 def getValueAtTime(tsc, timestamp):
 	# returns a value from tsc for the time that matches t; passing through once, no interpolation
@@ -82,11 +123,12 @@ def getValueAtTime(tsc, timestamp):
 			return v, True
 	return Constants.UNDEFINED, False
 
+# TODO: use Python's datetime or simular to handle this with a format string for flexibility
 def formatTime(t):
 	# format expected by R script
 	return "%d/%d/%d %02d:%02d" % (t.month(), t.day(), t.year(), t.hour(), t.minute())
 	
-def writeTsCSV(alt, opts, outTimestep=None, timestepColumn="GMT"):
+def writeTsCSV(alt, opts, outTimestep=None, timestampColumnName="timestamp"):
 	if outTimestep is None: outTimestep = alt.getTimeStep()
 	
 	# stash timeseries
@@ -97,56 +139,47 @@ def writeTsCSV(alt, opts, outTimestep=None, timestepColumn="GMT"):
 		tsc = alt.loadTimeSeries(loc)
 		hm = TimeSeriesMath(tsc).transformTimeSeries(outTimestep, "0M", "AVE")
 		timeseries[loc.getName()] = hm.getData() # back to TSC
-		for t,v in zip(timeseries[loc.getName()].times, timeseries[loc.getName()].values):
-			ts = HecTime()
-			ts.set(t)
-			alt.addComputeMessage("\t" + ts.toString(104) + " : "  + str(v))
+		#for t,v in zip(timeseries[loc.getName()].times, timeseries[loc.getName()].values):
+		#	#ts = HecTime()
+		#	#ts.set(t)
+		#	#alt.addComputeMessage("\t" + ts.toString(104) + " : "  + str(v))
 		
 	d = os.path.dirname(opts.getRunDirectory())
 	d = d.replace("Scripting", "")
 	csvFilename = os.path.join(d, "obsTimeseries.csv")
 	# CSV Format is as follows 
 	#              GMT,Loc1,Loc2,Loc3
-	#              10/1/1948 12:00,-8.087059,8.087059,-999
-  # header column named GMT could be changed with timestepColumn arg, but GMT required for my purpose
-	header = [timestepColumn] + locationNames
+	#              10/1/1948 12:00,,,-8.087059,8.087059,-999
+	# this doesn't have to be GMT, but this works for the script I am going to be running.
+	header = [timestampColumnName] + locationNames
 	with open(csvFilename, 'wb') as out:
 		outCSV = DictWriter(out, header)
 		outCSV.writeheader()
 		# simply loop through timestamps and output values
 		rtw = opts.getRunTimeWindow()	
-    # optionally set the timestep for output not the alternative's predefined timestep (not required for WAT 1.1.0.682 and greater)
 		#rtw.setTimeStep(alt.getTimeStep())
+		#alt.addComputeMessage(str(rtw.getNumSteps())) # getNumSteps returns negative number?
+		#alt.addComputeMessage("rtw is valid: " + str(rtw.isValid()))
+		#alt.addComputeMessage("start: " + str(rtw.getStartTime()))
+		#alt.addComputeMessage("end: " + str(rtw.getEndTime()))
+		#alt.addComputeMessage("lookback: " + str(rtw.getLookbackTime()))
 		i = 0
 		timestep = rtw.getTimeAtStep(i)
 		while timestep < rtw.getEndTime():
 			row = dict()
-			row[timestepColumn] = formatTime(timestep)
+			row[timestampColumnName] = formatTime(timestep)
 			# use valid row to only write data that exists - hack for mixing up timesteps
 			validRow = False
 			for loc in locationNames:
 				row[loc], validValue = getValueAtTime(timeseries[loc], timestep.value())
 				validRow = validRow or validValue
 			if validRow:
-				alt.addComputeMessage(str(row))
+				#alt.addComputeMessage(str(row))
 				outCSV.writerow(row)
 			i += 1
 			timestep = rtw.getTimeAtStep(i)
-	return csvFilename
+	return stringWrap(csvFilename)
 	
-	
-## Scripts to run
-# initRScript gets run when this script initializes; not clear if this runs more than once.
-initRScript = r"C:\Projects\WAT_R_Test\testInit.R"
-# runRScript runs with access to computeOptions and currentAlternative objects
-runRScript = r"C:\Projects\WAT_R_Test\testRun.R"
-
-# R executable
-RScriptExe = "\"C:\\Program Files\\R\\R-4.1.2\\bin\\Rscript.exe\""
-
-## Init R Script (optional)
-#callR(initRScript) 
-
 ##
 #
 # computeAlternative function is called when the ScriptingAlternative is computed.
@@ -161,14 +194,13 @@ RScriptExe = "\"C:\\Program Files\\R\\R-4.1.2\\bin\\Rscript.exe\""
 def computeAlternative(currentAlternative, computeOptions):
 	currentAlternative.addComputeMessage("Computing ScriptingAlternative:" + currentAlternative.getName())
 	# write configuration for script - tells it compute timewindow and locations
-  # script should be expected to find this.
-	configFilename = writeScriptConfig(currentAlternative, computeOptions)
+	configFile = writeScriptConfig(currentAlternative, computeOptions)
 
-	# write timeseries - any mapped input DataLocations will be written to CSV.
-	csvFilename = writeTsCSV(currentAlternative, computeOptions, outTimestep="1DAY")
+	# write timeseries
+	dataFile = writeTsCSV(currentAlternative, computeOptions, outTimestep="1DAY", timestampColumnName="GMT")
 	
-	# run R script 
-  # should pass in config and csv files as args, not currently done
-	callR(runRScript, [configFilename, csvFilename])
+	# run R compute function here 
+	rScriptFile = None # get R script from scriptConfig .json file
+	currentAlternative.addComputeMessage(callR(rScriptFile, computeOptions, [configFile, dataFile], relativeScript=True))
 	
 	return True
