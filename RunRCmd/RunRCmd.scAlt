@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptingAlt Name="RunRCmd">
+  <Description>
+    <desc cnt="0" value="Runs an R Script using the command line interface" />
+  </Description>
+  <ScriptFile>scripts/RunRTest.py</ScriptFile>
+  <TimeStep>15MIN</TimeStep>
+  <DataLocations>
+    <DataLocation Name="Prado" Class="hec2.model.DataLocation" DssPath="//Prado/Flow//15MIN/alt:ap:Scripting-RunRCmd/" ComputeType="Computed" Model="Hydrologic Sampling-FRA2" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="RunRCmd" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="Prado IN-SAR" Class="hec2.model.DataLocation" DssPath="//Prado IN-SAR/FLOW//1Day/C:000000|altName:apName:HydroSampl-FRA2/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="FRA2" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+</ScriptingAlt>
+
