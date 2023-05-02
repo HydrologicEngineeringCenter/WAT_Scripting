@@ -27,9 +27,11 @@ def callR(scriptFile, opts, args=[], relativeScript=True, relativeR=True, shell=
 	if relativeR: # use R in the WAT folder 
 		RScriptExe = os.path.join(watDir, "apps", "R", scriptConfig["r_config"]["RVersion"], os.path.join("bin", "Rscript.exe"))
 		rDir = os.path.join(watDir, "apps", "R", scriptConfig["r_config"]["RVersion"])
+	else:
+		rDir = RScriptExe.split("bin")[0]
 	if relativeScript:  # use scripts in the watershed
 		scriptFile = os.path.join(watershedDir, scriptFile)
-		rDir = RScriptExe.split("bin")[0]
+		
 	
 	# assemble command
 	cmdLine = []
