@@ -17,6 +17,9 @@ A script developed to pre-process data in a HEC-WAT Stochastic Data Importer com
 ### Ririe/Willow Creek Snow Accumulation
 This script computes additional output variables from the snowmelt portion of the HEC-HMS model to help answer questions about snow accumulation versus snowmelt during rain-on-snow events.  The identified output variables are computed as the difference in cumulative precipitation and snowpack between the begining and end of the event or over a shorter period.  The script was written by Eric Gabel (NWW) in support of the Ririe Dam Winter Inflow Volume Frequency study.
 
+### RunRCmd
+Relatively generic WAT compute script to launch an R command via a system call to `RScript` on Windows.  Only tested with a single input location and does not return an output data location.  Tested and used for a project to generate synthetic ensemble forecasts in support of Forecast Informed Reservoir Operations using the scripts from ![HEC-WAT Synthetic Forecast Ensembles](https://github.com/eheisman/hec-wat_syn-fcst-ensemble)
+
 ## Time Window Modifier Scripts
 
 ### Columbia Datum Shift
