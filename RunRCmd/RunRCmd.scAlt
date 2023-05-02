@@ -3,7 +3,7 @@
   <Description>
     <desc cnt="0" value="Runs an R Script using the command line interface" />
   </Description>
-  <ScriptFile>scripts/RunRTest.py</ScriptFile>
+  <ScriptFile>scripts/RunRCmd.py</ScriptFile>
   <TimeStep>15MIN</TimeStep>
   <DataLocations>
     <DataLocation Name="Prado" Class="hec2.model.DataLocation" DssPath="//Prado/Flow//15MIN/alt:ap:Scripting-RunRCmd/" ComputeType="Computed" Model="Hydrologic Sampling-FRA2" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">

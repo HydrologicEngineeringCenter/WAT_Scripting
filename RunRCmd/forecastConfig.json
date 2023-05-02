@@ -1,24 +1,54 @@
 {
     "forecast_generator_config": {
+        "locationName": "ADOC1",        
         "scriptDir": "synForecasts\\",
         "scriptDataDir": "data\\",
         "forecastFitDir": "fit\\",
         "leads": 14,
         "ens_num": 68,
         "ar": 3,
+        "env_scale": 1.5,
+        "no_samps": 1,
         "use_observed_flows": false,
-        "sqlFilename": "ensembles.db"    
+        "sqlFilename": "ensembles.db",    
+        "fit_start": "10/1/1999 12:00",
+        "fit_end": "9/30/2009 12:00",
+        "obs_csv_file": "data/adoc_only_inflow.csv",
+        "obs_column": 2
     },
+    "standalone_generator": {
+        "seed": 856,
+        "obs_csv_file": "data/adoc_only_inflow.csv",
+        "Indices": {
+          "Event Numbers": 0
+        }
+    },
+    "locations": [
+      {
+        "name": "ADOC1",
+        "hefs_folder": "data/ADOC1_sqin_HEFS_hourly/",
+        "skip_rows": 1,
+        "obs_csv_file": "data/adoc_only_inflow.csv",
+        "obs_column": 2,
+        "fit_start": "01/01/1985 12:00",
+        "fit_end": "12/31/2009 12:00",
+        "leads": 14,
+        "ens_num": 68,
+        "ar": 3
+      }
+    ],
     "java_config": {
         "java_libraries": [
             "C:/Projects/Prado_WAT_FIRO_Dev/FIRO_TSEnsembles/FIRO_TSEnsembles/build/libs/FIRO_TSEnsembles-1.0.1.jar",
             "C:/Projects/Prado_WAT_FIRO_Dev/FIRO_TSEnsembles/FIRO_TSEnsembles/runtime/sqlite-jdbc-3.30.1.jar"
         ],
         "java_home" : "C:/Programs/jdk-11.0.15+10-jre",
-        "rjava_libloc": "C:/programs/R/win-library/4.1/"
+        "rjava_libloc": "C:/programs/R_portable/R-4.1.2/library/",
+        "jvmArgs":  "-Djava.io.tmpdir=C:\\Temp\\FIRO_TSEnsembles"
     },
     "r_config": {
         "RScriptExe": "C:/Programs/R_portable/R-4.1.2/bin/Rscript.exe",
-        "RScriptFile": "synForecasts/wat_launcher.R"
+        "RScriptFile": "synForecasts/wat_launcher.R",
+        "RVersion": "R-4.1.2"
     }
 }

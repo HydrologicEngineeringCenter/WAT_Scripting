@@ -9,7 +9,7 @@ from hec.hecmath import TimeSeriesMath
 
 scriptConfigFilename = "synForecasts/forecastConfig.json"
 
-def callR(scriptFile, opts, args=[], relativeScript=True, relativeR=False, shell=False):
+def callR(scriptFile, opts, args=[], relativeScript=True, relativeR=True, shell=False):
 	watershedDir = opts.getRunDirectory().split("runs")[0]
 
 	# load config file to find R
@@ -22,18 +22,18 @@ def callR(scriptFile, opts, args=[], relativeScript=True, relativeR=False, shell
 	if scriptFile is None:
 		scriptFile = scriptConfig["r_config"]["RScriptFile"]
 
-	if relativeR: # use R in the watershed
-		RScriptExe = os.path.join(watershedDir, "R_install", RScriptExe)	
+	watDir = os.getcwd().replace("HEC-WAT", "")
+
+	if relativeR: # use R in the WAT folder 
+		RScriptExe = os.path.join(watDir, "apps", "R", scriptConfig["r_config"]["RVersion"], os.path.join("bin", "Rscript.exe"))
+		rDir = os.path.join(watDir, "apps", "R", scriptConfig["r_config"]["RVersion"])
 	if relativeScript:  # use scripts in the watershed
 		scriptFile = os.path.join(watershedDir, scriptFile)
+		rDir = RScriptExe.split("bin")[0]
+	
 	# assemble command
-	#cmdLine = RScriptExe + " --vanilla " + stringWrap(scriptFile) + " " + " ".join(args)
-	#if shell:
-	#	cmdLine = "cmd /c " + "'%s'" % cmdLine
-	
-	
 	cmdLine = []
-	cmdLine += [RScriptExe, "--vanilla", stringWrap(scriptFile)] + args
+	cmdLine += [RScriptExe, "--vanilla", stringWrap(scriptFile), stringWrap(rDir)] + args
 	# I need to clean this up, I cannot make it launch a separate shell to monitor the process
 	# this appears to not work with spaces in the arguments
 	if shell: cmdLine = ["start", "cmd", "/k ^\n", " ".join(cmdLine)] #+ cmdLine
