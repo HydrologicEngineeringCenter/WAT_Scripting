@@ -20,6 +20,9 @@ This script computes additional output variables from the snowmelt portion of th
 ### RunRCmd
 Relatively generic WAT compute script to launch an R command via a system call to `RScript` on Windows.  Only tested with a single input location and does not return an output data location.  Tested and used for a project to generate synthetic ensemble forecasts in support of Forecast Informed Reservoir Operations using the scripts from ![HEC-WAT Synthetic Forecast Ensembles](https://github.com/eheisman/hec-wat_syn-fcst-ensemble)
 
+### Hydrograph Unscaler
+Allows for merging several hydrographs sampled by Hydrologic Sampler into one, as a work around for generating short-duration flood events within the context of a longer duration season.  This script "unscales" hydrographs indicated by "-UNSCALED" in the location name, returning them to their initial magnitude (adjusted by Hydrologic Sampler) and then adds them together to create one output hydrograph.
+
 ## Time Window Modifier Scripts
 
 ### Columbia Datum Shift
