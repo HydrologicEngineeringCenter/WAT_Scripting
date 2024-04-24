@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptingAlt Name="Hydrograph_unscaler">
+  <Description>
+    <desc cnt="0" value="Unscale the baseflow and add the baseflow to the peak event" />
+  </Description>
+  <ScriptFile>scripts/Hydrograph_unscaler.py</ScriptFile>
+  <TimeStep>15MIN</TimeStep>
+  <DataLocations>
+    <DataLocation Name="Prado_IN" Class="hec2.model.DataLocation" DssPath="//Prado_IN/Flow//15MIN/alt:ap:Scripting-Hydrograph_unscaler/" ComputeType="Computed" Model="Hydrologic Sampling-PradoHS" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Hydrograph_unscaler" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="Prado IN-SAR" Class="hec2.model.DataLocation" DssPath="//Prado IN-SAR/FLOW//15MIN/C:000100|HFO:FRA_FullSe:HydroSampl-PradoHS/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="PradoHS" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+    <DataLocation Name="Prado_IN-unscaled" Class="hec2.model.DataLocation" DssPath="//Prado_IN-unscaled/Flow//15MIN/alt:ap:Scripting-Hydrograph_unscaler/" ComputeType="Computed" Model="Hydrologic Sampling-PradoHS" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Hydrograph_unscaler" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="Prado IN-Chino Ck" Class="hec2.model.DataLocation" DssPath="//Prado IN-Chino Ck/FLOW//15MIN/C:000100|HFO:FRA_FullSe:HydroSampl-PradoHS/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="PradoHS" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+  <OutputDataLocations>
+    <DataLocation Name="Prado_IN-combined" Class="hec2.model.DataLocation" DssPath="//Prado_IN-combined/Flow//15MIN/alt:ap:Scripting-Hydrograph_unscaler/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Hydrograph_unscaler" Program="Scripting" />
+    </DataLocation>
+  </OutputDataLocations>
+</ScriptingAlt>
+
