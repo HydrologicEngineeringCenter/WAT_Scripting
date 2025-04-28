@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptingAlt Name="HydrographSaver">
+  <Description>
+    <desc cnt="0" value="Makes a copy of all linked input data locations to a file in the runs directory; renaming to collection ID per lifecycle." />
+  </Description>
+  <ScriptFile>scripting/HydrographSaver.py</ScriptFile>
+  <TimeStep>1HOUR</TimeStep>
+  <DataLocations>
+    <DataLocation Name="TestInput1" Class="hec2.model.DataLocation" DssPath="//TestInput1/Flow///alt:ap:Scripting-HydrographSaver/" ComputeType="Computed" Model="Hydrologic Sampling-HSBS_Continuous" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="HydrographSaver" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="CCP1" Class="hec2.model.DataLocation" DssPath="/Hydrograph/CCP1/Flow//1DAY/C:000001|A1:HS_SaveTes:HydroSampl-HSBS_Continuous/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="HSBS_Continuous" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+    <DataLocation Name="TestInput2" Class="hec2.model.DataLocation" DssPath="//TestInput2/Flow//1HOUR/alt:ap:Scripting-HydrographSaver/" ComputeType="Computed" Model="Hydrologic Sampling-HSBS_Continuous" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="HydrographSaver" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="CCP2" Class="hec2.model.DataLocation" DssPath="/Hydrograph/CCP2/Flow//1DAY/C:000001|A1:HS_SaveTes:HydroSampl-HSBS_Continuous/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="HSBS_Continuous" Program="Hydrologic Sampling" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+</ScriptingAlt>
+
