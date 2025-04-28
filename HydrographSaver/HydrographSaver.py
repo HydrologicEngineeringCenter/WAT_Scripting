@@ -1,4 +1,5 @@
 from hec.heclib.dss import HecDss
+from hec.hecmath import TimeSeriesMath
 import os.path
 
 
@@ -35,18 +36,32 @@ def computeAlternative(currentAlternative, computeOptions):
 			continue
 		tsc.fileName = outputFilename
 		# rewrite f part appropriately
+		path = tsc.fullName.split("/")
 		if computeOptions.isFrmCompute():
 			newFPart = tsc.version.split("|")[-1]
 			collectionID = computeOptions.getCurrentLifecycleNumber()
 			newFPart = "C:%06d|%s" % (collectionID, newFPart)
 			tsc.version = newFPart
-			path = tsc.fullName.split("/")
 			path[-2] = newFPart
 			tsc.fullName = "/".join(path)
 		# TODO: merge if required
 		# if HecDss . recordExists(tsc.fullName):
 		# read as TSM, convert to TSM, merge, write
-		outFile.put(tsc)
-
+		currentAlternative.addComputeMessage("Event #%d: " % computeOptions.getCurrentEventNumber())
+		if computeOptions.getCurrentEventNumber() == 1: # OR len(computeOptions.getEventList()) == 1
+			outFile.put(tsc)
+		else:
+			# this is likely very inefficient to read and write with every TSC being added, but I am trying to keep this _simple!_
+			# it also doesn't work great... use with caution.
+			stw = computeOptions.getSimulationTimeWindow().toString()
+			currentAlternative.addComputeMessage("reading previous data for %s" % stw)
+			mergeToTSM = outFile.read(tsc.fullName, stw)
+			mergedTSM = mergeToTSM.mergeTimeSeries(TimeSeriesMath(tsc))
+			# this next step is to convert timeseries back when converted to irregular, I think this is an issue when gaps are added to the data)
+			# Okay, it doesn't work well, so when the merge function results in irregular data, ¯\_(?)_/¯ 
+			#mergedTSM = mergedTSM.transformTimeSeries("INT", "", path[5])
+			mergedTSM.setVersion(tsc.version)
+			outFile.write(mergedTSM)	
+			
 	outFile.done()
 	return True
