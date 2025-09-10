@@ -1,7 +1,7 @@
 # WAT_Scripting
-Example Jython scripts for the Scripting Plugin and Time Window Modifier Plugin for HEC-WAT.
+Example Jython scripts for the Scripting Plugin and Time Window Modifier Plugin for HEC-WAT.  Authors may have been identified to help place scripts in context, but cannot any support in their use.  These are provided as-is with no warranty, as a reference  for other HEC-WAT users to refer to.  Code developed by USACE and other federal agency staff is placed into the public domain.
 
-These scripts are organized by folder and include the HEC-WAT Scripting Plugin or Time Window Modifier alternative and supporting files where available.  Authors have been identified to help place scripts in context, but cannot garantee any support in their use.
+These scripts are organized by folder and include the HEC-WAT Scripting Plugin or Time Window Modifier alternative and supporting files where available.
 
 ## Scripting Plugin Scripts
 A list of the example scripts with brief explanations:
