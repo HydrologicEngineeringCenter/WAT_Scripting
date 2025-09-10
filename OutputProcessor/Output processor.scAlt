@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptingAlt Name="Output processor">
+  <Description />
+  <ScriptFile>scripts/Output_processor.py</ScriptFile>
+  <TimeStep>1HOUR</TimeStep>
+  <DataLocations>
+    <DataLocation Name="Location1" Class="hec2.model.DataLocation" DssPath="//Location1/Flow//1HOUR/alt:ap:Scripting-Output processor/" ComputeType="Computed" Model="ResSim-Simple_MC" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="PUY_at_PUY" Class="hec2.model.DataLocation" DssPath="//PUY_at_PUY/Flow//1HOUR/C:000050|Existing C:FRA50yr:ResSim-Simple_MC/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="Simple_MC" Program="ResSim" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+    <DataLocation Name="Location1-Unreg" Class="hec2.model.DataLocation" DssPath="//Location1-Unreg/Flow-Unreg//1HOUR/alt:ap:Scripting-Output processor/" ComputeType="Computed" Model="ResSim-Simple_MC" Parameter="Flow-Unreg" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="PUY_at_PUY" Class="hec2.model.DataLocation" DssPath="//PUY_at_PUY/Flow-Unreg//1HOUR/C:000050|Existing C:FRA50yr:ResSim-Simple_MC/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="Simple_MC" Program="ResSim" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+    <DataLocation Name="Location2" Class="hec2.model.DataLocation" DssPath="//Location2/Flow//1HOUR/alt:ap:Scripting-Output processor/" ComputeType="Computed" Model="ResSim-Simple_MC" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+      <DownStreamLocation>
+        <DataLocation Name="MMD_FLOW_IN" Class="hec2.model.DataLocation" DssPath="//MMD_FLOW_IN/Flow//1HOUR/C:000050|Existing C:FRA50yr:ResSim-Simple_MC/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+          <ModelAlternative Name="Simple_MC" Program="ResSim" />
+        </DataLocation>
+      </DownStreamLocation>
+    </DataLocation>
+  </DataLocations>
+  <OutputDataLocations>
+    <DataLocation Name="Location1:FMA=72" Class="hec2.model.DssDataLocation" DssPath="//Location1:FMA=72/Flow//1HOUR/C:000050|Existing C:FRA50yr:Scripting-Output processor/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+    </DataLocation>
+    <DataLocation Name="Location1-Unreg:FMA=72" Class="hec2.model.DssDataLocation" DssPath="//Location1-Unreg:FMA=72/Flow-Unreg//1HOUR/C:000050|Existing C:FRA50yr:Scripting-Output processor/" ComputeType="Computed" Parameter="Flow-Unreg" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+    </DataLocation>
+    <DataLocation Name="Location2:FMA=72" Class="hec2.model.DssDataLocation" DssPath="//Location2:FMA=72/Flow//1HOUR/C:000050|Existing C:FRA50yr:Scripting-Output processor/" ComputeType="Computed" Parameter="Flow" OutOfDate="false" PrevModelIndex="0">
+      <ModelAlternative Name="Output processor" Program="Scripting" />
+    </DataLocation>
+  </OutputDataLocations>
+  <OutputVariables>
+    <OutputVariable Plugin="" Name="Location 1 72hr" Description="" Value="0.0" ParamId="-1" Parameter="Flow" Units="cfs" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>MAX</Statistic>
+      <DataLocationName>Location1:FMA=72</DataLocationName>
+    </OutputVariable>
+    <OutputVariable Plugin="" Name="Location 1 Unreg 72hr" Description="" Value="0.0" ParamId="-1" Parameter="Flow-Unreg" Units="cfs" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>MAX</Statistic>
+      <DataLocationName>Location1-Unreg:FMA=72</DataLocationName>
+    </OutputVariable>
+    <OutputVariable Plugin="" Name="Location 2 72hr" Description="" Value="0.0" ParamId="-1" Parameter="Flow" Units="cfs" pdcFileName="" pdcDSSPath="" pdcXParam="" pdcXUnits="" pdcYParam="" pdcYUnits="" pdcYType="">
+      <Statistic>MAX</Statistic>
+      <DataLocationName>Location2:FMA=72</DataLocationName>
+    </OutputVariable>
+  </OutputVariables>
+</ScriptingAlt>
+

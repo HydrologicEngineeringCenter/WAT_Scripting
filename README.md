@@ -26,6 +26,9 @@ Allows for merging several hydrographs sampled by Hydrologic Sampler into one, a
 ### Hydrograph Saver
 On a non-distributed HEC-WAT compute, this script saves any timeseries that are linked into it as an input data location  to a single .DSS file, collapsing the f-part to have a collection ID for each lifecycle.  Currently only works for continuous event lifecycles which have a single collection ID per lifecycle, as merging DSS record functionality needs to be added.  _TO USE:_ Add this script at the end of the program order in a simulation, adding Input Data Locations for each record to be saved, and then use the model linking editor to identify which model outputs need to be saved.  When the compute runs, a DSS file in the simulation's output directory will be created (parallel to the output variable file) that saves the timeseries data for later analysis.
 
+### Output Processor
+For each output data location, this script takes the location name, splits on the `:` character, and reads the corresponding input data location for the first half.  It then perform a forward moving average based on the string in the second half.  This could be extended or modified to support other simple `TimeSeriesMath` functions to transform data between models.  In the original use case, this script was used to compute 72-hr duration average flows, and the Scripting Plugin's Output Variable feature computed the maximum statistic on the resulting timeseries.
+
 ## Time Window Modifier Scripts
 
 ### Columbia Datum Shift
