@@ -1,6 +1,10 @@
 # FRA to SDI converter
 # takes f parts, merges events into lifecycles per file, consolidates into one big file.
 # catches if file not found, records not found
+#
+# THIS SCRIPT RUNS IN Python3 with the native python DSS libraries
+# https://github.com/HydrologicEngineeringCenter/hec-python-library
+#
 
 import os, logging, sys, warnings
 
