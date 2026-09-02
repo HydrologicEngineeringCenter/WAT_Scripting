@@ -1,14 +1,11 @@
 # FRA to SDI converter
 # takes f parts, merges events into lifecycles per file, consolidates into one big file.
 # catches if file not found, records not found
-#
-# THIS SCRIPT RUNS IN Python3 with the native python DSS libraries
-# https://github.com/HydrologicEngineeringCenter/hec-python-library
-#
 
 import os, logging, sys, warnings
 
-from hec import DssDataStore
+from hec import DssDataStore, TimeSeries
+from hecdss import DssPath
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -27,46 +24,22 @@ pathSet = """//J_GRN_AUB/FLOW//1Hour/C:000001|Space1S1:FRA50S:HydroSampl-HHD_Aub
 //RES_GRN_HHD_in:FMA=5 VOL=/Flow//1Day/C:000001|Space1S1:FRA50S:Scripting-SynFcstPreProcessor/
 //RES_GRN_HHD_in:VOL=/Flow//1Day/C:000001|Space1S1:FRA50S:Scripting-SynFcstPreProcessor/
 """
-fcst_rest = """
-//CUMULATIVE(1.0DAY),AVERAGE///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(1.0DAY),PERCENTILES(0.05)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
+fcstPaths = """
 //CUMULATIVE(1.0DAY),PERCENTILES(0.1)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(1.0DAY),PERCENTILES(0.25)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(1.0DAY),PERCENTILES(0.5)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(1.0DAY),PERCENTILES(0.75)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(1.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(2.0DAY),AVERAGE///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(2.0DAY),PERCENTILES(0.05)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(2.0DAY),PERCENTILES(0.1)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(2.0DAY),PERCENTILES(0.25)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(2.0DAY),PERCENTILES(0.5)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(2.0DAY),PERCENTILES(0.75)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(2.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(2.0DAY),PERCENTILES(0.95)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(3.0DAY),AVERAGE///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(3.0DAY),PERCENTILES(0.05)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(3.0DAY),PERCENTILES(0.1)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(3.0DAY),PERCENTILES(0.25)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(3.0DAY),PERCENTILES(0.5)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(3.0DAY),PERCENTILES(0.75)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(3.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(3.0DAY),PERCENTILES(0.95)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(4.0DAY),AVERAGE///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(4.0DAY),PERCENTILES(0.05)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(4.0DAY),PERCENTILES(0.1)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(4.0DAY),PERCENTILES(0.25)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(4.0DAY),PERCENTILES(0.5)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(4.0DAY),PERCENTILES(0.75)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(4.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(4.0DAY),PERCENTILES(0.95)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),AVERAGE///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),PERCENTILES(0.05)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(5.0DAY),PERCENTILES(0.1)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),PERCENTILES(0.25)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
 //CUMULATIVE(5.0DAY),PERCENTILES(0.5)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),PERCENTILES(0.75)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/
-//CUMULATIVE(5.0DAY),PERCENTILES(0.95)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/"""
+//CUMULATIVE(5.0DAY),PERCENTILES(0.9)///IR-Year/C:000001|Space1S1:FRA50S:FIRO_WFP-SFO_HHD/"""
 
 def pathnameFormatter(pathname, collectionID):
     pathParts = pathname.split("/")
@@ -78,14 +51,25 @@ def pathnameFormatter(pathname, collectionID):
 
 def perRecordCopy(inputFile, outputFile, pathname, lcNum):
     outTS = None
+    missedEvents = set()
     for eventNum in range(1, nEventsPerLC+1):
         readPathname = pathnameFormatter(pathname, eventNum)
+        inpath = DssPath(readPathname)
         # from input file, copy to output file
         try:
-            ts = inputFile.retrieve(readPathname).label_as_time_zone("UTC")
-        except:
-            logger.warning("Unable to read %s from %s" % (readPathname, inputFile._hecdss._filename))
-            break
+            ts = None
+            if inpath.C.strip() == "":
+                ts = inputFile._hecdss.get(readPathname)
+                inpath.C = "FLOW" # we assume?  deals with bad EFP output pathnames :(
+                ts.id = str(inpath)
+                ts = TimeSeries.from_native(inputFile, ts)
+            else:
+                ts = inputFile.retrieve(readPathname)
+            ts.ilabel_as_time_zone("UTC")
+        except Exception as e:
+            logger.warning("Unable to read %s from %s [%s]" % (readPathname, inputFile._hecdss._filename, str(e)))
+            missedEvents.add(eventNum)
+            continue
         sdiFPart = readPathname.split(":")[-1].replace("/","")
         ts.version = "C:%06d|%s" % (lcNum, sdiFPart)
         tsMergeNeeded = "IR-" in readPathname
@@ -93,7 +77,8 @@ def perRecordCopy(inputFile, outputFile, pathname, lcNum):
             # trying this naive write
             outputFile._hecdss.put(ts.to_native(outputFile))
         else:
-            ts = ts.ito_irregular("IR-Year")
+            #ts.isnap_to_regular("1Day")
+            #ts = ts.ito_irregular("IR-Year")
             if outTS is None:
                 outTS = ts
             else:
@@ -101,6 +86,7 @@ def perRecordCopy(inputFile, outputFile, pathname, lcNum):
                 outTS.imerge(ts)
     if not outTS is None:
         outputFile.store(outTS)
+    return missedEvents
 
 
 def perFileCopy(inputFile, outputFile, pathSet, lcNum):
@@ -129,12 +115,18 @@ def allCopy(inputDirectory, outputFilename, pathSet):
                     inFile.set_message_level(1)
                     # force catalog for record types
                     # catalog = inFile._hecdss.get_catalog()
-                    perFileCopy(inFile, outFile, pathSet, lifecycle)
+                    missedEvents = perFileCopy(inFile, outFile, pathSet, lifecycle)
+                    if len(missedEvents) > 0:
+                        missedEventList = list(missedEvents)
+                        missedEventList.sort()
+                        missedEventString  = ",".join([str(e) for e in missedEventList])
+                        logger.warning("LC %d missing one or more records for events %s" % (lcNum, missedEventString))
 
 # config section
-logFilename = "sdi_consolidator.log"
-inputDirectory = r"C:\Watersheds\FRA50S_FcstsOnly"
-outputFilename = "sdi_consolidated.dss"
+logFilename = "sdi_consolidator_fcsts.log"
+#inputDirectory = r"C:\Watersheds\FRA50S_FcstsOnly"
+inputDirectory = r"C:\Watersheds\Howard_Hanson_Dam_FIRO_WAT_06May2026-computes\runs\Space1S1\FRA50S"
+outputFilename = "sdi_fcsts.dss"
 
 # globals
 nEventsPerLC = 50
@@ -148,6 +140,6 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.basicConfig(filename=logFilename, level=logging.INFO)
-    paths = pathSet.split("\n")
+    paths = fcstPaths.split("\n")
     # print(paths)
     allCopy(inputDirectory, outputFilename, paths)
