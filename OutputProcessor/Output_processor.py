@@ -40,7 +40,7 @@ def computeAlternative(currentAlternative, computeOptions):
 			nAvg = int(settings["FMA"])
 			tsm = tsm.forwardMovingAverage(nAvg)
 		tsm.setLocation(odl.getName())
-		
+  		tsm.setParameterPart(odl.getParameter())  #NEW!  This is important for the OutputVariables to work correctly.
 		currentAlternative.writeTimeSeries(tsm.getData())
 		currentAlternative.addComputeMessage("\tsuccesfully computed for output %s:%s" % (odl.getName(), odl.getParameter()))
 	return True
