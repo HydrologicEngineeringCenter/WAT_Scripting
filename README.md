@@ -39,3 +39,8 @@ This script computes a fixed time window for the April 1st through July 31st sea
 
 ### Event Peak / Breach
 This script computes a timewindow based on the combination of a peak at a downstream location in the HEC-ResSim model and a state variable that indicates if any reserviors were modeled as breached due to a failure.  This was used to generate a combined time window for HEC-RAS that reduces the overall compute time to only include the combination of those two events.  Contact Evan Heisman (@eheisman) for the corresponding HEC-ResSim state variables.
+
+## Utility Scripts
+
+### FRA Output to SDI
+Generates an "SDI" formatted input file from an existing FRA compute.  This can be useful when a time consuming part of a model is the same for all alternatives, thus allowing multiple alternatives to reuse the same input data.  Use of this script requires one WAT FRA compute that samples hydrology and runs those models, saving the lifecycle DSS files.  This script can be run on that output to rename the DSS records and collect them into a single file suitable for setting up an "SDI" input alternative for a new FRA compute.
