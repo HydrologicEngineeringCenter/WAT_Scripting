@@ -7,6 +7,7 @@ import os, logging, sys, warnings
 from hec import DssDataStore, TimeSeries
 from hecdss import DssPath
 
+# mutes warnings from the hec library
 warnings.filterwarnings("ignore", category=UserWarning)
 
 pathSet = """//J_GRN_AUB/FLOW//1Hour/C:000001|Space1S1:FRA50S:HydroSampl-HHD_Auburn/
@@ -58,6 +59,7 @@ def perRecordCopy(inputFile, outputFile, pathname, lcNum):
         # from input file, copy to output file
         try:
             ts = None
+            # special logic to deal with f parts that are blank, plugin issue in WAT to fix.
             if inpath.C.strip() == "":
                 ts = inputFile._hecdss.get(readPathname)
                 inpath.C = "FLOW" # we assume?  deals with bad EFP output pathnames :(
@@ -65,8 +67,10 @@ def perRecordCopy(inputFile, outputFile, pathname, lcNum):
                 ts = TimeSeries.from_native(inputFile, ts)
             else:
                 ts = inputFile.retrieve(readPathname)
+            # hec TimeSeries object seems to be happier with this, may not always be true.
             ts.ilabel_as_time_zone("UTC")
         except Exception as e:
+            # note when a record could not be read, write to a log.
             logger.warning("Unable to read %s from %s [%s]" % (readPathname, inputFile._hecdss._filename, str(e)))
             missedEvents.add(eventNum)
             continue
@@ -93,16 +97,26 @@ def perFileCopy(inputFile, outputFile, pathSet, lcNum):
     for pathname in pathSet:
         if len(pathname.strip()) == 0:
             continue
-        perRecordCopy(inputFile, outputFile, pathname, lcNum)
+        missedEvents = perRecordCopy(inputFile, outputFile, pathname, lcNum)
+        if len(missedEvents) > 0:
+            missedEventList = list(missedEvents)
+            missedEventList.sort()
+            missedEventString  = ",".join([str(e) for e in missedEventList])
+            # summary information about missing records.
+            logger.info("LC %d missing one or more records for events %s" % (lcNum, missedEventString))
+
 
 def inputFilenameFormatter(inputDir, alt, ap, r, lc):
+    # wat folder structure within a compute
     return os.path.join(inputDir, "Realization %d" % r, "Lifecycle %d" % lc, "%s-%s.dss" % (alt, ap))
 
 def lifecycleNumbers(r, nLCsPerR):
-    return range((r-1)*nLCsPerR+1, r*nLCsPerR)
+    # generate lifecycle #s for a given realization
+    return range((r-1)*nLCsPerR+1, r*nLCsPerR+1)
 
 def allCopy(inputDirectory, outputFilename, pathSet):
     with DssDataStore.open(outputFilename, read_only=False) as outFile:
+        # supress DSS messages to console by setting this to 1.  4 is default.
         outFile.set_message_level(1)
         for realization in range(1, nRealizations+1):
             for lifecycle in lifecycleNumbers(realization, nLCsPerRealization):
@@ -113,20 +127,12 @@ def allCopy(inputDirectory, outputFilename, pathSet):
                 print(inputFilename)
                 with DssDataStore.open(inputFilename, read_only=True) as inFile:
                     inFile.set_message_level(1)
-                    # force catalog for record types
-                    # catalog = inFile._hecdss.get_catalog()
-                    missedEvents = perFileCopy(inFile, outFile, pathSet, lifecycle)
-                    if len(missedEvents) > 0:
-                        missedEventList = list(missedEvents)
-                        missedEventList.sort()
-                        missedEventString  = ",".join([str(e) for e in missedEventList])
-                        logger.warning("LC %d missing one or more records for events %s" % (lcNum, missedEventString))
+                    perFileCopy(inFile, outFile, pathSet, lifecycle)
 
 # config section
-logFilename = "sdi_consolidator_fcsts.log"
-#inputDirectory = r"C:\Watersheds\FRA50S_FcstsOnly"
-inputDirectory = r"C:\Watersheds\Howard_Hanson_Dam_FIRO_WAT_06May2026-computes\runs\Space1S1\FRA50S"
-outputFilename = "sdi_fcsts.dss"
+logFilename = "sdi_consolidator.log"
+outputFilename = "sdi_consolidated.dss"
+inputDirectory = r"C:\Watersheds\FRA50S_FcstsOnly"
 
 # globals
 nEventsPerLC = 50
@@ -140,6 +146,6 @@ logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.basicConfig(filename=logFilename, level=logging.INFO)
-    paths = fcstPaths.split("\n")
+    paths = pathSet.split("\n")
     # print(paths)
     allCopy(inputDirectory, outputFilename, paths)
